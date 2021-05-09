@@ -25,6 +25,7 @@ void UBullCowCartridge::initGame()
     HiddenWord = isogram[FMath::RandRange(0,isogram.Num()-1)];
     lives=HiddenWord.Len() * 2;
     bGameOver = false;
+    bHint = false;
     PrintLine(TEXT("Hello Traveller, Got a moment to spare.\nPlay our little 'BULLS AND COWS' Game."));
     PrintLine(FString::Printf(TEXT("You have %i lives"), lives));
     // PrintLine(TEXT("answer: %s"), *HiddenWord); // Debug line
@@ -35,6 +36,7 @@ void UBullCowCartridge::endGame()
     PrintLine(TEXT("Press Enter to play again."));
     PrintLine(TEXT("The hiddenword was %s."), *HiddenWord);
     bGameOver = true;
+    bHint = true;
 }
 
 void UBullCowCartridge::processGuess(FString Guess)
@@ -44,6 +46,38 @@ void UBullCowCartridge::processGuess(FString Guess)
         // print the player won
         PrintLine("WON");
         endGame();
+        return;
+    }
+    // Added Hint Feature > 09-05-2021
+    // works once per game - otherwise guess is wasted
+    if(Guess == "4Hint" && bHint == false)
+    {
+        int32 len= HiddenWord.Len();
+        int32 a,b,c;
+        a=FMath::RandRange(0,len/3);
+        b=FMath::RandRange(len/3+1,2*(len/3));
+        c=FMath::RandRange(2*(len/3),len-1);
+        FString tmp="";
+        for(int16 i=0;i<len;i++)
+        {
+            if(i==a){
+                tmp=tmp+HiddenWord[a];
+            }
+            else if(i==b)
+            {
+                tmp=tmp+HiddenWord[b];
+            }
+            else if(i==c)
+            {
+                tmp=tmp+HiddenWord[c];
+            }else{
+                tmp=tmp+"_";
+            }
+        }
+        // ----------
+        PrintLine(TEXT("Hint > %s"), *tmp);
+        bHint=true;
+        // break flow as no guess was taken
         return;
     }
     // if Answer is not a isogram
